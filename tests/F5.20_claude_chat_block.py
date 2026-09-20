@@ -54,7 +54,7 @@ from block_test_packages import install_test_package, release_key, surface_paylo
 
 
 SECRET = "sk-ant-test-claude-chat-secret"
-ANSWER = "bonjour depuis le faux claude chat"
+ANSWER = "hello from the fake claude chat"
 
 
 class FakeClaudeChatHttpServer(ThreadingHTTPServer):
@@ -192,13 +192,13 @@ def run_claude_chat_case(runtime_mode: str, fake_server: FakeClaudeChatHttpServe
         "The text response must leave on the response port.",
     )
     raw_json = run.get("output_values", {}).get("claude-chat-1:2", {}).get("value") or ""
-    expect("msg_test_claude_chat" in raw_json and ANSWER in raw_json, "La reponse JSON brute doit sortir sur raw_json.")
-    expect(SECRET not in logs and SECRET not in node_logs, "La cle API ne doit pas apparaitre dans les logs.")
-    expect("fallback centralized" not in logs, "Le run ne doit pas fallback centralise.")
+    expect("msg_test_claude_chat" in raw_json and ANSWER in raw_json, "The raw JSON response must be published on raw_json.")
+    expect(SECRET not in logs and SECRET not in node_logs, "The API key must not appear in the logs.")
+    expect("fallback centralized" not in logs, "The run must not fall back to centralized.")
     if runtime_mode == "zeromq_active":
         expect(
             run.get("results", {}).get("claude-chat-1", {}).get("transport") == "zeromq_active",
-            "claude_chat doit etre execute via zeromq_active.",
+            "claude_chat must run through zeromq_active.",
         )
     return run
 
@@ -206,7 +206,7 @@ def run_claude_chat_case(runtime_mode: str, fake_server: FakeClaudeChatHttpServe
 def test_http_requests(fake_server: FakeClaudeChatHttpServer) -> None:
     """TC1 - Verify Anthropic-compatible Messages API requests."""
 
-    expect(len(fake_server.requests_log) >= 2, "Le faux endpoint Claude doit recevoir une requete par run.")
+    expect(len(fake_server.requests_log) >= 2, "The fake Claude endpoint must receive one request per run.")
     for request in fake_server.requests_log:
         payload = request["payload"]
         expect(request["path"] == "/v1/messages", "The block must call /v1/messages.")
@@ -324,17 +324,17 @@ def test_claude_chat_ui_contract(fake_server: FakeClaudeChatHttpServer) -> None:
     css = (ROOT / "blocs/claude_chat/assets/css/block_modal.css").read_text(encoding="utf-8")
     js = (ROOT / "blocs/claude_chat/assets/js/block_modal.js").read_text(encoding="utf-8")
 
-    expect("cw-claude-chat-modal" in html, "Le modal Claude Chat doit venir du bloc.")
-    expect('data-block-runtime-refresh="autonomous"' in html, "Le modal Claude Chat doit gerer son refresh runtime.")
+    expect("cw-claude-chat-modal" in html, "The Claude Chat modal must come from the block.")
+    expect('data-block-runtime-refresh="autonomous"' in html, "The Claude Chat modal must own its runtime refresh.")
     expect('data-claude-chat-tab-id="setup"' in html, "The modal must expose the Setup tab.")
     expect('data-claude-chat-tab-id="last-response"' in html, "The modal must expose the Last response tab.")
     expect('data-block-config-field="model"' in html, "Le modele must be editable.")
-    expect('data-block-config-field="api_key"' in html, "La cle API must be editable.")
+    expect('data-block-config-field="api_key"' in html, "The API key must be editable.")
     expect('data-block-config-field="history_turns"' in html, "Le nombre d'echanges memorises must be editable.")
     expect(SECRET not in html, "The API key must not be rendered in clear text in the modal.")
-    expect("claude-sonnet-4-20250514" in html and "claude-3-5-haiku-latest" in html, "Les modeles Claude doivent etre proposes.")
-    expect(".claude-chat-modal-panel[hidden]" in css, "Le CSS doit cacher les panels inactifs.")
-    expect("export function mount" in js, "Le JS doit monter le modal via le registre block UI.")
+    expect("claude-sonnet-4-20250514" in html and "claude-3-5-haiku-latest" in html, "The Claude models must be offered.")
+    expect(".claude-chat-modal-panel[hidden]" in css, "The CSS must hide the inactive panels.")
+    expect("export function mount" in js, "The JS must mount the modal through the block UI registry.")
 
     inspector = render_block_inspector_panel("claude_chat", {"node": node})
     inspector_html = str(inspector.get("html") or "")
@@ -345,7 +345,7 @@ def test_claude_chat_ui_contract(fake_server: FakeClaudeChatHttpServer) -> None:
 
     card = render_block_node_card("claude_chat", {"node": node})
     card_html = str(card.get("html") or "")
-    expect("data-claude-chat-node-card" in card_html, "La node-card Claude Chat doit venir du bloc.")
+    expect("data-claude-chat-node-card" in card_html, "The Claude Chat node card must come from the block.")
 
 
 def main() -> None:
