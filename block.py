@@ -435,7 +435,7 @@ class ClaudeChatBlock(BlockDefinition):
             f'<input data-block-config-field="temperature" type="text" autocomplete="off" spellcheck="false" placeholder="vide = defaut" value="{escape(config["temperature"], quote=True)}" />'
             '</div>'
             '<div class="field-group">'
-            '<label>Historique échanges</label>'
+            '<label>Conversation history</label>'
             f'<input data-block-config-field="history_turns" data-block-value-type="integer" type="number" min="0" max="50" step="1" value="{config["history_turns"]}" />'
             '</div>'
             '<div class="field-group">'
@@ -454,7 +454,7 @@ class ClaudeChatBlock(BlockDefinition):
             f'{escape(config["system_instruction"])}'
             '</textarea>'
             '</div>'
-            '<div class="field-hint">Connecte une source au port <code>instruction</code>. Cette valeur devient le message utilisateur courant.</div>'
+            '<div class="field-hint">Wire a source to the <code>instruction</code> port. That value becomes the user message courant.</div>'
             f'{self._render_ports_summary(node)}'
             '</div>'
             '</section>'
@@ -477,11 +477,11 @@ class ClaudeChatBlock(BlockDefinition):
             '<div>'
             '<span class="group-label">Derniere reponse</span>'
             '<h3>Last response</h3>'
-            '<p class="field-hint">Reponse JSON brute conservee dans le dernier etat runtime.</p>'
+            '<p class="field-hint">Raw JSON response kept in the last runtime state.</p>'
             '</div>'
             f'<button class="ghost-btn{response_class}" data-block-modal-copy="#{escape(source_id, quote=True)}" type="button">Copier</button>'
             '</div>'
-            f'<p class="claude-chat-empty{empty_class}">Aucune reponse Claude Chat enregistree pour ce bloc.</p>'
+            f'<p class="claude-chat-empty{empty_class}">No Claude Chat response recorded for this block.</p>'
             f'<pre class="claude-chat-last-response-output{response_class}" id="{escape(source_id, quote=True)}" data-block-modal-copy-source>{escape(response)}</pre>'
             '</div>'
             '</section>'
@@ -492,7 +492,7 @@ class ClaudeChatBlock(BlockDefinition):
 
         return (
             '<div class="field-group">'
-            '<label>Nom du bloc</label>'
+            '<label>Block name</label>'
             f'<input data-block-title-field type="text" autocomplete="off" value="{escape(title, quote=True)}" />'
             '</div>'
         )
@@ -503,7 +503,7 @@ class ClaudeChatBlock(BlockDefinition):
         inputs = [port for port in (node.get("inputs") or []) if isinstance(port, dict)]
         outputs = [port for port in (node.get("outputs") or []) if isinstance(port, dict)]
         rows = []
-        for label, ports in (("Entrees", inputs), ("Sorties", outputs)):
+        for label, ports in (("Inputs", inputs), ("Outputs", outputs)):
             cells = "".join(
                 f'<code>#{escape(str(port.get("id") or ""))} {escape(str(port.get("name") or ""))}</code>'
                 for port in ports
