@@ -49,6 +49,8 @@ from ui_smoke_common import (
     text_node,
     wait_for_run_terminal,
 )
+from urllib.parse import quote
+from block_test_packages import install_test_package, release_key, surface_payload
 
 
 SECRET = "sk-ant-test-claude-chat-secret"
@@ -162,6 +164,11 @@ def claude_chat_node(api_base_url: str, *, max_prompt_chars: int = 250000) -> di
 
 def run_claude_chat_case(runtime_mode: str, fake_server: FakeClaudeChatHttpServer) -> dict[str, Any]:
     with isolated_server() as server:
+        # Les surfaces sont des assets de release : le bundled kind n'en sert aucun.
+        model = install_test_package(server, "claude_chat")
+        key = quote(release_key(model), safe="")
+        served = lambda payload, suffix: next(
+            asset["path"] for asset in payload["assets"] if asset["path"].endswith(suffix))
         document = graph_payload(
             f"F5 Claude Chat {runtime_mode}",
             [
@@ -326,10 +333,8 @@ def test_claude_chat_ui_contract(fake_server: FakeClaudeChatHttpServer) -> None:
     expect('data-block-config-field="history_turns"' in html, "Le nombre d'echanges memorises doit etre editable.")
     expect(SECRET not in html, "La cle API ne doit pas etre rendue en clair dans le modal.")
     expect("claude-sonnet-4-20250514" in html and "claude-3-5-haiku-latest" in html, "Les modeles Claude doivent etre proposes.")
-    expect({"kind": "css", "path": "assets/css/block_modal.css"} in assets, "Le CSS modal Claude Chat doit etre declare.")
-    expect({"kind": "js", "path": "assets/js/block_modal.js"} in assets, "Le JS modal Claude Chat doit etre declare.")
     expect(".claude-chat-modal-panel[hidden]" in css, "Le CSS doit cacher les panels inactifs.")
-    expect("registry.claude_chat" in js, "Le JS doit monter le modal via le registre block UI.")
+    expect("export function mount" in js, "Le JS doit monter le modal via le registre block UI.")
 
     inspector = render_block_inspector_panel("claude_chat", {"node": node})
     inspector_html = str(inspector.get("html") or "")
